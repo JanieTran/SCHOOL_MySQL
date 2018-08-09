@@ -124,30 +124,60 @@ WHERE e.department = d.code
 GROUP BY d.code;
 
 -- k)
-SELECT p.code, d.name, COUNT(*)
-FROM position p, department d, employee e
+SELECT e.position, d.name, COUNT(*)
+FROM department d, employee e
 WHERE e.department = d.code
-  AND e.position = p.code
-GROUP BY p.code, d.code;
+GROUP BY e.position, d.code;
 
 -- l)
 SELECT e.name, p.income * 12 AS annual_income
 FROM employee e, position p
 WHERE e.position = p.code
-  AND p.income BETWEEN (SELECT AVG(p1.income) - 50 FROM position p1)
-                   AND (SELECT AVG(p1.income) + 50 FROM position p1);
+  AND p.income BETWEEN (SELECT AVG(p1.income) - 50 FROM position p1, employee e1 WHERE e1.position = p1.code)
+                   AND (SELECT AVG(p1.income) + 50 FROM position p1, employee e1 WHERE e1.position = p1.code);
+
+-- -- Other solution
+SELECT e.name, p.income * 12 AS annual_income
+FROM position p, employee e
+WHERE e.position = p.code
+  AND ABS(p.income - (SELECT AVG(p1.income)
+                      FROM position p1, employee e1)) <= 100;
+
+-- TO TEST THE NEXT QUERIES WORKS WITH NULL VALUES
+INSERT INTO position VALUE ('CS6', 'Intern', 100);
 
 -- m)
-SELECT p.code, 0
-  FROM position p;
+SELECT p.code, COUNT(*) AS e_income_higher_avg
+FROM position p LEFT OUTER JOIN employee e
+         ON e.position = p.code
+WHERE p.income > (SELECT AVG(p1.income)
+                  FROM position p1, employee e1
+                  WHERE e1.position = p1.code)
+GROUP BY p.code;
  
 -- n)
-SELECT d.name, d.name, p.title, h.start_date
-  FROM department d, position p, history h;
+SELECT d.name, p.title, h.start_date, e.name
+FROM department d, position p, history h, employee e
+WHERE e.department = d.code
+  AND p.code = h.position
+  AND e.number = h.employee
+  AND h.start_date = (SELECT MIN(h1.start_date)
+                      FROM employee e1, history h1
+                      WHERE e1.number = h1.employee
+                        AND e1.department = e.department
+                        AND h1.position = h.position);
 
 -- o)
-SELECT e.name, e.name
-  FROM employee e;
+SELECT d.name, e.name, p.income
+FROM department d, employee e, position p
+WHERE d.code = e.department
+  AND p.code = e.position
+  AND p.income = (SELECT MAX(p1.income)
+                  FROM department d1, employee e1, position p1
+                  WHERE d1.code = e1.department
+                    AND p1.code = e1.position
+                  GROUP BY d.code)
+GROUP BY d.code;
 
 -- p)
 SELECT e.name, e.position
