@@ -108,9 +108,9 @@ create table StudentAdvisors (
 
 create table Customers (
   id      integer,
-  name    varchar(50),
-  address varchar(100),
-  phone   varchar(10),
+  name    varchar(50) not null,
+  address varchar(100) not null,
+  phone   varchar(10) not null,
   primary key (id)
 );
 
@@ -118,21 +118,28 @@ create table Accounts (
   number    integer,
   type      varchar(10),
   balance   real,
-  cid       integer not null,
-  primary key (number),
-  foreign key (cid) references Customers(id)
+  primary key (number)
+);
+
+create table AccountOwnership (
+  customer  integer,
+  account   integer,
+  primary key (customer, account),
+  foreign key (customer) references Customers(id),
+  foreign key (account) references Accounts(number)
 );
 
 create table Transactions (
-  id      integer,
-  code    varchar(10),
-  amount  real,
-  date    date,
-  time    time,
-  descr   varchar(100),
-  accnum  integer not null,
+  id        integer,
+  code      varchar(10),
+  amount    real,
+  date      date,
+  time      time,
+  descr     varchar(100),
+  customer  integer,
+  account   integer,
   primary key (id),
-  foreign key (accnum) references Accounts(number)
+  foreign key (customer, account) references AccountOwnership(customer, account)
 );
 
 -- ====================================
