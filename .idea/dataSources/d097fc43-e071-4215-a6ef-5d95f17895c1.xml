@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="@RMIT_oncamp">
-  <database-model serializer="dbm" rdbms="MYSQL" format-version="4.9">
+  <database-model serializer="dbm" rdbms="MYSQL" format-version="4.10">
     <root id="1">
       <ServerVersion>5.1.73</ServerVersion>
       <DefaultEngine>InnoDB</DefaultEngine>
@@ -537,9 +537,15 @@
     <table id="136" parent="2" name="field"/>
     <table id="137" parent="2" name="interest"/>
     <table id="138" parent="2" name="paper"/>
-    <view id="139" parent="2" name="fields_order_by_popularity"/>
-    <view id="140" parent="2" name="most_popular_fields"/>
-    <view id="141" parent="2" name="older_students"/>
+    <view id="139" parent="2" name="fields_order_by_popularity">
+      <SourceTextLength>220</SourceTextLength>
+    </view>
+    <view id="140" parent="2" name="most_popular_fields">
+      <SourceTextLength>315</SourceTextLength>
+    </view>
+    <view id="141" parent="2" name="older_students">
+      <SourceTextLength>113</SourceTextLength>
+    </view>
     <column id="142" parent="133" name="acnum">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>

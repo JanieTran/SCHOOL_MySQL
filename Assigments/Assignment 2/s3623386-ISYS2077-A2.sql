@@ -83,16 +83,33 @@ where a.acnum = i.acnum
 -- Find how many academics are interested in each field,
 -- and order the results by the most popular fields first.
 -- List the field number and the number of academics interested in each respective field.
+select i.fieldnum, count(i.fieldnum) as num_ac_interested
+from academic a, interest i
+where a.acnum = i.acnum
+group by i.fieldnum
+order by num_ac_interested desc;
+
+-- 2.4
+-- Find the field number of the most popular field(s).
+-- There could be many fields equal for the first place.
 create view fields_order_by_popularity (fieldnum, num_ac_interested) as
-  select i.fieldnum, count(*) as num_ac_interested
+  select i.fieldnum, count(i.fieldnum) as num_ac_interested
   from academic a, interest i
   where a.acnum = i.acnum
   group by i.fieldnum
   order by num_ac_interested desc;
 
--- 2.4
--- Find the field number of the most popular field(s).
--- There could be many fields equal for the first place.
+select distinct i.fieldnum
+from interest i
+where i.fieldnum in (select fv.fieldnum
+                     from fields_order_by_popularity fv
+                     where fv.num_ac_interested = (select max(fv1.num_ac_interested)
+                                                   from fields_order_by_popularity fv1));
+
+-- 2.5
+-- Find the family and given names of the academics
+-- who are interested in the most popular field(s).
+
 create view most_popular_fields (fieldnum) as
   select distinct i.fieldnum
   from interest i
@@ -101,9 +118,6 @@ create view most_popular_fields (fieldnum) as
                        where fv.num_ac_interested = (select max(fv1.num_ac_interested)
                                                      from fields_order_by_popularity fv1));
 
--- 2.5
--- Find the family and given names of the academics
--- who are interested in the most popular field(s).
 select a.famname, a.givename
 from academic a, interest i
 where a.acnum = i.acnum
@@ -140,8 +154,10 @@ group by a.acnum
 select a.famname, a.givename
 from academic a
 where a.acnum in (select a1.acnum
-                  from academic a1, interest i
-                  where a1.acnum = i.acnum);
+                  from academic a1
+                  where (select count(i.fieldnum)
+                         from interest i
+                         where i.acnum = a1.acnum) < 2);
 
 -- -- o	Using a correlated sub-query and without using a GROUP BY.
 select distinct a.famname, a.givename
